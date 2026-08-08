@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Reveal } from '../components/Reveal';
-import { FlaskConical, Beaker, BarChart3, Waves, Thermometer, Droplets, ArrowRight, Lightbulb, Search, Users, Target } from 'lucide-react';
+import { FlaskConical, Beaker, BarChart3, Waves, Thermometer, Droplets, ArrowRight } from 'lucide-react';
 
 const Research: React.FC = () => {
   return (

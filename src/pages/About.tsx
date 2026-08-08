@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Reveal } from '../components/Reveal';
 import { StatCounter } from '../components/StatCounter';
-import { Target, Lightbulb, Users, Leaf, FlaskConical, HeartHandshake, TrendingUp, ShieldCheck, Factory } from 'lucide-react';
+import { Target, Lightbulb, Users, Leaf, FlaskConical, HeartHandshake } from 'lucide-react';
 
 const About: React.FC = () => {
   const [isReadMoreOpen, setIsReadMoreOpen] = useState(false);
