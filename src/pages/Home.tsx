@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FlaskConical, PlayCircle, CheckCircle2, Factory, Beaker, ShieldCheck, Users, Truck, Package, Leaf, Droplet } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(ScrollTrigger);
+
 import { BoomerangVideoBg } from '../BoomerangVideoBg';
 import { Reveal } from '../components/Reveal';
 import { StatCounter } from '../components/StatCounter';
@@ -11,28 +17,60 @@ import Careers from './Careers';
 import Contact from './Contact';
 
 const Home: React.FC = () => {
-  const [isIntroDone, setIsIntroDone] = useState(false);
-  const [showText, setShowText] = useState(false);
+  const container = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // Prevent scrolling during intro
+  useGSAP(() => {
+    // Lock scroll briefly while intro loads
     document.body.style.overflow = 'hidden';
     
-    // Show text after 1s
-    const textTimer = setTimeout(() => setShowText(true), 1000);
-    
-    // End intro after 4s
-    const introTimer = setTimeout(() => {
-      setIsIntroDone(true);
-      document.body.style.overflow = 'unset';
-    }, 4000);
+    const tl = gsap.timeline({
+      onComplete: () => {
+        document.body.style.overflow = 'unset';
+      }
+    });
 
-    return () => {
-      clearTimeout(textTimer);
-      clearTimeout(introTimer);
-      document.body.style.overflow = 'unset';
-    };
-  }, []);
+    // Animate background opacity
+    tl.to(bgRef.current, { opacity: 1, duration: 3, ease: 'power2.inOut' }, 0);
+    // Animate overlay from solid navy to transparent navy
+    tl.fromTo(overlayRef.current, 
+      { backgroundColor: '#022c22' }, 
+      { backgroundColor: 'rgba(2, 44, 34, 0.7)', duration: 3, ease: 'power2.inOut' }, 
+      0
+    );
+
+    // Slowly reveal main text
+    tl.fromTo(textRef.current, 
+      { opacity: 0, y: 80, scale: 0.95 }, 
+      { opacity: 1, y: 0, scale: 1, duration: 2.5, ease: 'power3.out' }, 
+      1
+    );
+
+    // Slowly reveal CTA
+    tl.fromTo(ctaRef.current,
+      { opacity: 0, x: 20 },
+      { opacity: 1, x: 0, duration: 1.5, ease: 'power2.out' },
+      2.5
+    );
+
+    // GSAP Scroll Animations (Parallax effect)
+    gsap.to(textRef.current, {
+      y: -200,
+      opacity: 0,
+      scale: 0.9,
+      ease: "none",
+      scrollTrigger: {
+        trigger: container.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+      }
+    });
+
+  }, { scope: container });
 
   return (
     <>
@@ -42,18 +80,18 @@ const Home: React.FC = () => {
       </Helmet>
 
       {/* Hero Section */}
-      <div className="relative min-h-[100svh] flex flex-col -mt-[88px] pt-[88px] overflow-hidden">
+      <div ref={container} className="relative min-h-[100svh] flex flex-col -mt-[88px] pt-[88px] overflow-hidden">
         {/* Background Video */}
         <div className="absolute inset-0 z-0">
-          <div className={`w-full h-full transition-opacity duration-[3000ms] ${showText ? 'opacity-100' : 'opacity-0'}`}>
+          <div ref={bgRef} className="w-full h-full opacity-0">
             <BoomerangVideoBg src="/hero-video.mp4" className="w-full h-full" />
           </div>
           {/* Overlay to ensure text readability */}
-          <div className={`absolute inset-0 transition-colors duration-[3000ms] ${isIntroDone ? 'bg-navy/70' : 'bg-navy'}`}></div>
+          <div ref={overlayRef} className="absolute inset-0"></div>
         </div>
 
         <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto w-full pb-32">
-          <div className={`transition-all duration-[2500ms] ease-out transform ${showText ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'}`}>
+          <div ref={textRef} className="opacity-0">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 text-center mx-auto tracking-tighter drop-shadow-2xl uppercase leading-tight">
               Explicit Chemicals
             </h1>
@@ -64,7 +102,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Bottom Right Video Link (Desktop) */}
-        <div className="hidden lg:flex absolute bottom-12 right-10 z-20 items-center gap-3 cursor-pointer group">
+        <div ref={ctaRef} className="hidden lg:flex absolute bottom-12 right-10 z-20 items-center gap-3 cursor-pointer group opacity-0">
           <div className="text-right">
             <p className="text-navy font-semibold text-sm group-hover:text-teal-heading transition-colors">Inside our lab</p>
             <p className="text-navy/60 text-xs font-medium">1:35</p>
